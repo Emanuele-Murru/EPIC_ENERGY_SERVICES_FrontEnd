@@ -1,4 +1,5 @@
 export interface Clienti {
+  "idCliente":string,
     "ragioneSociale": String,
     "partitaIva":String,
     "emailCliente":String,
@@ -18,7 +19,13 @@ export interface Clienti {
     "civicoDue":Number,
     "localitaDue":String,
     "capDue":String,
-    "comuneDue":String
+    "comuneDue":String,
+    "dataInserimento":String,
+    "ultimoContatto":String,
+    "fatturatoAnnuale":Number,
+  "fatture":any,
+  "indirizzoSedeLegale": any,
+  "civico":String,
 
 
 }

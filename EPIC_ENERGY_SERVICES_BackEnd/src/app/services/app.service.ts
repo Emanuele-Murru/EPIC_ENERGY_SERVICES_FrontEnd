@@ -11,51 +11,50 @@ import { Fattura } from '../models/fattura.interface';
 export class AppService {
 
   private urlClienti = 'http://localhost:3001/clienti'; // Controlla l'URL del backend
-
+private urlClientifiltroragionesociale='http://localhost:3001/clienti/filter/ragioneSociale';
   constructor(private http: HttpClient) { }
 
-  getClienti(page: number, order: string): Observable<Clienti[]> {
-    const params = new HttpParams()
-      .set('page', page.toString())
-      .set('order', order);
+getClienti(page:Number, order:string): Observable<Clienti[]> {
+  const params = new HttpParams()
 
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${localStorage.getItem('token')}`
-    });
-
-    return this.http.get<any>(this.urlClienti, { params, headers })
-      .pipe(map(response => response.content));
-  }
-
-
-
-  getProvinciaById(provincia: string): Observable<Clienti> {
-    const url = `${this.urlClienti}/${provincia}`;
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${localStorage.getItem('token')}`
-    });
-    return this.http.get<Clienti>(url, { headers });
-  }
-
-
+  .set('page', page.toString())
+  .set('order', order)
+  const headers = new HttpHeaders({
+    Authorization: `Bearer ${localStorage.getItem('token')}`
+  });
+  return this.http.get<any>(this.urlClienti, { params, headers })
+    .pipe(map(response => response.content));
+}
 
 creaCliente(cliente: Clienti): Observable<Clienti> {
   const headers = new HttpHeaders({
     Authorization: `Bearer ${localStorage.getItem('token')}`
   });
+
   return this.http.post<Clienti>(this.urlClienti, cliente, { headers });
 }
-
 // ------------------------------------------------------ Fattura
 
 private urlFattura = 'http://localhost:3001/fattura';
 
-creaFattura(fattura: Fattura): Observable<Fattura>{
+// creaFattura(fattura: Fattura): Observable<Fattura>{
+//   const headers = new HttpHeaders({
+//     Authorization: `Bearer ${localStorage.getItem('token')}`
+//   });
+//   return this.http.post<Fattura>(this.urlFattura, fattura, { headers });
+//  }
+
+creaFattura(fattura: Fattura, clienteId: string): Observable<Fattura> {
   const headers = new HttpHeaders({
     Authorization: `Bearer ${localStorage.getItem('token')}`
   });
-  return this.http.post<Fattura>(this.urlFattura, fattura, { headers });
- }
+
+  // Aggiungi il parametro clienteId all'URL
+  const urlWithParams = `${this.urlFattura}?clienteId=${clienteId}`;
+
+  return this.http.post<Fattura>(urlWithParams, fattura, { headers });
+}
+
 
  getFatture(page: number, order: string): Observable<Fattura[]> {
    const params = new HttpParams()
@@ -78,19 +77,113 @@ creaFattura(fattura: Fattura): Observable<Fattura>{
     return this.http.get<Fattura>(url, { headers });
   }
 
-}
-//   //CHIAMATA POST PER METTERE FILM NEI PREFERITI
-//   aggiungiFavorites(data: Favorites) {
-//     return this.http.post<Favorites>('http://localhost:4201/favorites', data);
-//   }
-//   // CHIAMATA DELETE PER ELEMINARE FILM DAI PREFERITI
-//   eliminaFavorites(favoriteID: number) {
-//     return this.http.delete(`http://localhost:4201/favorites/${favoriteID}`);
-//   }
-// //CHIAMATA GET PER INFO FILM SPECIFICO
-//   getFilmById(id: number) {
-//     return this.http.get<Movies[]>(`http://localhost:4201/movies-popular/${id}`);
-//   }
 
+
+  getClientiRagioneSociale(parteRagioneSociale:string,page:number, pageSize:number ): Observable<Clienti[]> {
+    const params = new HttpParams()
+
+    .set('page', page.toString())
+    .set('pageSize', pageSize.toString())
+    .set('parteRagioneSociale', parteRagioneSociale.toString())
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${localStorage.getItem('token')}`
+    });
+    return this.http.get<any>(this.urlClientifiltroragionesociale, { params, headers })
+      .pipe(map(response => response.content));
+  }
+
+  getClientiPaginazione(page:number, pageSize:number, parteRagioneSociale:string): Observable<Clienti[]> {
+    const params = new HttpParams()
+
+    .set('page', page.toString())
+    .set('pageSize', pageSize.toString())
+    .set('parteRagioneSociale', parteRagioneSociale)
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${localStorage.getItem('token')}`
+    });
+    return this.http.get<any>(this.urlClientifiltroragionesociale, { params, headers })
+      .pipe(map(response => response.content));
+  }
+
+
+  deleteCliente(id: string): Observable<Clienti[]> {
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${localStorage.getItem('token')}`
+    });
+
+    const url = `${this.urlClienti}/${id}`;
+
+    return this.http.delete<any>(url, { headers });
+  }
+  deleteFattura(id: string): Observable<Fattura[]> {
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${localStorage.getItem('token')}`
+    });
+
+    const url = `${this.urlFattura}/${id}`;
+
+    return this.http.delete<any>(url, { headers });
+  }
+
+
+
+  getClientiByFatturatoAnnuale(fatturatoAnnuale: number, page: number, pageSize: number): Observable<Clienti[]> {
+    const params = new HttpParams()
+      .set('fatturatoAnnuale', fatturatoAnnuale.toString())
+      .set('page', page.toString())
+      .set('pageSize', pageSize.toString());
+
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${localStorage.getItem('token')}`
+    });
+
+    return this.http.get<any>(`${this.urlClienti}/filter/fatturatoAnnuale`, { params, headers })
+      .pipe(map(response => response.content));
+  }
+  getClientiByDataInserimento(dataInserimento: string, page: number, pageSize: number): Observable<Clienti[]> {
+    const params = new HttpParams()
+      .set('dataInserimento', dataInserimento.toString())
+      .set('page', page.toString())
+      .set('pageSize', pageSize.toString());
+
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${localStorage.getItem('token')}`
+    });
+
+    return this.http.get<any>(`${this.urlClienti}/filter/dataInserimento`, { params, headers })
+      .pipe(map(response => response.content));
+  }
+
+  getClientiByDataUltimoContatto(dataUltimoContatto: string, page: number, pageSize: number): Observable<Clienti[]> {
+    const params = new HttpParams()
+      .set('dataUltimoContatto', dataUltimoContatto.toString())
+      .set('page', page.toString())
+      .set('pageSize', pageSize.toString());
+
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${localStorage.getItem('token')}`
+    });
+
+    return this.http.get<any>(`${this.urlClienti}/filter/ultimoContatto`, { params, headers })
+      .pipe(map(response => response.content));
+  }
+
+
+  getClientiByParteRagioneSociale(parteRagioneSociale: string, page: number, pageSize: number): Observable<Clienti[]> {
+    const params = new HttpParams()
+      .set('parteRagioneSociale', parteRagioneSociale.toString())
+      .set('page', page.toString())
+      .set('pageSize', pageSize.toString());
+
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${localStorage.getItem('token')}`
+    });
+
+    return this.http.get<any>(`${this.urlClienti}/filter/ragioneSociale`, { params, headers })
+      .pipe(map(response => response.content));
+  }
+
+
+}
 
 
